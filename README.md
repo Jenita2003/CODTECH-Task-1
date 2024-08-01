@@ -1,8 +1,13 @@
 **Name: JENITA HANNAH P**
+
 **Company: CODTEC IT SOLUTIONS**
+
 **ID: CT4AD4762**
+
 **Domain: ANDROID DEVELOPMENT**
+
 **Duration: JULY 10th TO AUGUST 10th 2024**
+
 **Mentor: NEELA SANTHOSH KUMAR**
 
 ## *Overview of the Project*
