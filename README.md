@@ -42,6 +42,7 @@ Custom colors and text styles make the app visually appealing and easy to use.
 - **Data Management:** Features like editing and deleting notes require careful planning to ensure a good user experience and prevent data loss.
 - **Performance:** Adding features like animations and drawing requires attention to ensure the app runs smoothly and efficiently.
 
+![WhatsApp Image 2024-08-01 at 15 43 17](https://github.com/user-attachments/assets/4f865441-54f9-46d0-9833-a0107d4d05e9)
 
 
 
