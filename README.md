@@ -10,7 +10,7 @@
 
 *Mentor:* NEELA SANTHOSH KUMAR
 
-##*OBJECTIVE:*
+## *OBJECTIVE:*
 Create a simple and user-friendly note-taking app that lets users write text notes and draw, making it versatile for different note-taking needs.
 
 *KEY ACTIVITIES:*
