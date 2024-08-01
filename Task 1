@@ -1,0 +1,271 @@
+import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Note Taking App',
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.purple,
+        ).copyWith(
+          secondary: Colors.pinkAccent,
+        ),
+        textTheme: TextTheme(
+          titleLarge: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Roboto',
+            color: Color(0xff020202),
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Roboto',
+            color: Colors.white,
+          ),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: Colors.pinkAccent,
+        ),
+        cardColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xffa255c6),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        scaffoldBackgroundColor: Color(0xffcd7cd9),
+      ),
+      home: NotesScreen(),
+    );
+  }
+}
+
+class NotesScreen extends StatefulWidget {
+  @override
+  _NotesScreenState createState() => _NotesScreenState();
+}
+
+class _NotesScreenState extends State<NotesScreen>
+    with SingleTickerProviderStateMixin {
+  final List<String> _notes = [];
+  final TextEditingController _textController = TextEditingController();
+  int? _editingIndex;
+  late AnimationController _animationController;
+  bool _isDrawingMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _addOrEditNote() {
+    if (_textController.text.isNotEmpty) {
+      setState(() {
+        if (_editingIndex != null) {
+          _notes[_editingIndex!] = _textController.text;
+          _editingIndex = null;
+        } else {
+          _notes.add(_textController.text);
+          _animationController.forward(from: 0);
+        }
+        _textController.clear();
+      });
+    }
+  }
+
+  void _deleteNoteConfirmation(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Note'),
+          content: const Text('Are you sure you want to delete this note?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _notes.removeAt(index);
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _editingIndex = null;
+      _textController.clear();
+    });
+  }
+
+  void _toggleDrawingMode() {
+    setState(() {
+      _isDrawingMode = !_isDrawingMode;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Note Taking App'),
+        actions: <Widget>[
+          if (_editingIndex != null)
+            IconButton(
+              icon: const Icon(Icons.cancel),
+              onPressed: _cancelEdit,
+            ),
+          IconButton(
+            icon: Icon(
+              _isDrawingMode ? Icons.edit : Icons.draw,
+              color: Colors.white,
+            ),
+            onPressed: _toggleDrawingMode,
+          ),
+        ],
+      ),
+      body: _isDrawingMode
+          ? DrawingCanvas() // Show drawing canvas if in drawing mode
+          : ListView.builder(
+              itemCount: _notes.length,
+              itemBuilder: (context, index) {
+                return FadeTransition(
+                  opacity: _animationController,
+                  child: Card(
+                    margin: const EdgeInsets.all(8),
+                    elevation: 5,
+                    color: Colors.white,
+                    child: ListTile(
+                      title: Text(
+                        _notes[index],
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.pinkAccent,
+                        ),
+                        onPressed: () => _deleteNoteConfirmation(index),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _textController.text = _notes[index];
+                          _editingIndex = index;
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addOrEditNote,
+        child: Icon(_editingIndex == null ? Icons.add : Icons.save),
+        backgroundColor: Colors.pinkAccent,
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          controller: _textController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Enter note...',
+          ),
+          onSubmitted: (value) => _addOrEditNote(),
+        ),
+      ),
+    );
+  }
+}
+
+class DrawingCanvas extends StatefulWidget {
+  @override
+  _DrawingCanvasState createState() => _DrawingCanvasState();
+}
+
+class _DrawingCanvasState extends State<DrawingCanvas> {
+  List<ui.Path?> _paths = [];
+  ui.Path? _currentPath;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onPanStart: (details) {
+        setState(() {
+          _currentPath = ui.Path()
+            ..moveTo(details.localPosition.dx, details.localPosition.dy);
+          _paths.add(_currentPath);
+        });
+      },
+      onPanUpdate: (details) {
+        setState(() {
+          _currentPath?.lineTo(
+              details.localPosition.dx, details.localPosition.dy);
+        });
+      },
+      onPanEnd: (details) {
+        setState(() {
+          _currentPath = null;
+        });
+      },
+      child: CustomPaint(
+        painter: DrawingPainter(paths: _paths),
+        size: Size.infinite,
+      ),
+    );
+  }
+}
+
+class DrawingPainter extends CustomPainter {
+  final List<ui.Path?> paths;
+
+  DrawingPainter({required this.paths});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 4.0;
+
+    for (final path in paths) {
+      if (path != null) {
+        canvas.drawPath(path, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
