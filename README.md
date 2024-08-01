@@ -46,4 +46,3 @@ Custom colors and text styles make the app visually appealing and easy to use.
 
 
 
-
