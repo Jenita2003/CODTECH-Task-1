@@ -7,7 +7,7 @@
 
 ## *Overview of the Project*
 
-## PROJECT TITLE: Note Taking App
+### PROJECT TITLE: Note Taking App
 
 ### *OBJECTIVE:*
 Create a simple and user-friendly note-taking app that lets users write text notes and draw, making it versatile for different note-taking needs.
