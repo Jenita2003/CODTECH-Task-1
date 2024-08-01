@@ -10,7 +10,7 @@
 
 **Mentor: NEELA SANTHOSH KUMAR**
 
-## *Overview of the Project*
+# *Overview of the Project*
 
 ### PROJECT TITLE: Note Taking App
 
